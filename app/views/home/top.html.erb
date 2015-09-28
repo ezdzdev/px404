@@ -1,3 +1,27 @@
-<% @photos.each do |url| -%>
-  <%= image_tag url -%>
+<% @photos.each do |photo| -%>
+  <% if @authenticated %>
+    <%= "<a href='/' data-id='#{photo[:id]}'>".html_safe -%>
+    <%= image_tag photo[:url] -%>
+    <%= "</a>".html_safe -%>
+  <% else %>
+    <%= image_tag photo[:url] -%>
+  <% end %>
 <% end -%>
+
+<script>
+  $('a').on('click', function() {
+    var that = this;
+    event.preventDefault();
+    $.ajax({
+      type: 'POST',
+      url: '/like',
+      data: { id: $(this).data('id') }
+    }).done(function(data) {
+      if (typeof data.photo !== 'undefined') {
+        $('[data-id=' + data.photo.id + ']').css('opacity', 0.5);
+      } else {
+        alert(data.error);
+      }
+    });
+  });
+</script>
